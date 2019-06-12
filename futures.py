@@ -2,6 +2,7 @@ import requests
 import json
 from bs4 import BeautifulSoup
 from db import DataBase
+import time
 
 levels = ["Pivot Point 2nd Level Resistance",
           "Pivot Point 1st Resistance Point",
@@ -39,12 +40,9 @@ def main():
     store_values(db_data)
 
     # want to create trade and a sell at the first points around the pivot
-    res_1 = db_data[0]
-    sup_1 = db_data[3]
-    buy = ["buy", sup_1, 1]
-    store_trades(buy)
-    sell = ["sell", res_1, 1]
-    store_trades(sell)
+    store_trades(["buy", db_data[3], 1])
+    time.sleep(1)
+    store_trades(["sell", db_data[0], 1])
 
 
 def store_values(data):
