@@ -129,5 +129,8 @@ dmypy.json
 .pyre/
 =======
 .idea/*
+=======
 .idea/*.xml
 *.iml
+__pychache__/
+*.pyc
