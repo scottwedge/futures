@@ -15,5 +15,5 @@ certain criteria.
 - clone this repository
 - cd into the repo
 - run `pipenv shell`
-- run `pipenv install --ignore-pipfile`
+- run `pipenv install --dev`
 - run `./trades.py`
