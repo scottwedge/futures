@@ -1,0 +1,4 @@
+# min | hour | day of month | month | day of week
+# configuring to run once every hour from 9 to 5 each day
+0 9-16 * * * /futures/run.sh > /proc/1/fd/1 2>/proc/1/fd/2
+# Don't remove the empty line at the end of this file. It is required to run the cron job
