@@ -1,53 +1,37 @@
 import sqlite3
 from pypika import Query
 
-# database has two tables to store historical values and actions
-# table name: SP_500_e_mini
-# columns: date, resistance_1, resistance_2, pivot, support_1, support_2
-# table name: trades
-# columns: date, type, price, test, successful
+dbLocation = "./futures.db"
 
-dbLocation = "/Users/EvanWhite/futures.db"
-
-values_table = "sp_500_e_mini_new"
-values_columns = ["resistance_1",
-                  "resistance_2",
-                  "pivot",
-                  "support_1",
-                  "support_2"]
-trades_table = "trades"
+values_table = "SP_500_values"
+values_columns = ["resistance_1", "resistance_2", "pivot", "support_1", "support_2"]
+trades_table = "positions"
 trades_columns = ["type", "price", "test"]
 
 
-sql_create_values_table = """ CREATE TABLE IF NOT EXISTS SP_500_e_mini (
-                                        date INTEGER PRIMARY KEY NOT NULL DEFAULT (julianday('now')),
+sql_create_values_table = """CREATE TABLE IF NOT EXISTS SP_500_values (
+                                        date REAL PRIMARY KEY NOT NULL DEFAULT (julianday('now')),
                                         resistance_1 REAL,
                                         resistance_2 REAL,
                                         pivot REAL,
                                         support_1 REAL,
                                         support_2 REAL 
-                                    ); """
+                                    );"""
 
-sql_create_trades_table = """ CREATE TABLE IF NOT EXISTS trades (
-                                        date TEXT PRIMARY KEY NOT NULL DEFAULT (datetime('now')),
+sql_create_trades_table = """CREATE TABLE IF NOT EXISTS positions (
+                                        date REAL PRIMARY KEY NOT NULL DEFAULT (julianday('now')),
                                         type INTEGER,
                                         price REAL,
                                         test INTEGER
-                                    ); """
+                                    );"""
 
-sql_insert_values = """ INSERT INTO SP_500_e_mini (resistance_1, resistance_2, pivot, support_1, support_2) 
-                            VALUES (
-                            :'Pivot Point 1st Resistance Point', 
-                            :'Pivot Point 2nd Level Resistance', 
-                            :'Pivot Point', 
-                            :'Pivot Point 1st Support Point', 
-                            :'Pivot Point 2nd Support Point'); """
+select_values = """SELECT datetime(date, 'unixepoch', 'localtime') as date, resistance_1, resistance_2, pivot, support_1, support_2 FROM SP_500_values;"""
+clear_values = """DELETE FROM SP_500_values;"""
 
-select_values = """ SELECT * FROM SP_500_e_mini_new;"""
+sql_insert_trade = """INSERT INTO positions (type, price, test) VALUES (?, ?, ?);"""
 
-sql_insert_trade = """ INSERT INTO trades (type, price, test) VALUES (?, ?, ?); """
-
-select_trades = """ SELECT * FROM trades; """
+select_trades = """SELECT datetime(date, 'unixepoch', 'localtime') as date, type, price, test FROM positions;"""
+clear_trades = """DELETE FROM positions;"""
 
 
 class DataBase:
@@ -85,10 +69,37 @@ class DataBase:
         print(str(q))
         return self.execute_statement(str(q))
 
-    def query(self):
+    def clear_values(self):
+        try:
+            c = self.conn.cursor()
+            c.execute(clear_values)
+        except Exception as e:
+            print("query exception: " + str(e))
+            self.close()
+
+    def clear_trades(self):
+        try:
+            c = self.conn.cursor()
+            c.execute(clear_trades)
+        except Exception as e:
+            print("query exception: " + str(e))
+            self.close()
+
+    def query_values(self):
         try:
             c = self.conn.cursor()
             c.execute(select_values)
+            rows = c.fetchall()
+            for row in rows:
+                print(row)
+        except Exception as e:
+            print("query exception: " + str(e))
+            self.close()
+
+    def query_trades(self):
+        try:
+            c = self.conn.cursor()
+            c.execute(select_trades)
             rows = c.fetchall()
             for row in rows:
                 print(row)
@@ -102,10 +113,10 @@ def main():
 
     try:
         # create tables if not exist
-        # db.execute_statement(sql_create_values_table)
-        # db.execute_statement("DROP TABLE trades;")
-        # db.execute_statement(sql_create_trades_table)
-        db.query()
+        db.execute_statement(sql_create_values_table)
+        db.execute_statement(sql_create_trades_table)
+        db.query_values()
+        db.query_trades()
     finally:
         db.close()
 

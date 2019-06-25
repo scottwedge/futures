@@ -21,11 +21,7 @@ def main():
     html = requests.get("https://www.barchart.com/futures/quotes/ESM19/cheat-sheet")
 
     soup = BeautifulSoup(html.text, features="html.parser")
-
     data = soup.find('cheat-sheet').attrs["data-cheat-sheet-data"]
-    # print(data)
-    # print()
-    # print(json.dumps(json.loads(data), sort_keys=True, indent=4))
 
     raw_data = json.loads(data)
     db_data = [0, 0, 0, 0, 0]
@@ -37,30 +33,15 @@ def main():
         elif point in points:
             db_data[dbTableColumn[point]] = obj["rawValue"]
 
-    store_values(db_data)
-
-    # want to create trade and a sell at the first points around the pivot
-    store_trades(["buy", db_data[3], 1])
-    time.sleep(1)
-    store_trades(["sell", db_data[0], 1])
-
-
-def store_values(data):
     db = DataBase()
-
     try:
-        print(db.store_values(data))
-        db.query()
-    finally:
-        db.close()
+        db.store_values(db_data)
+        db.query_values()
 
-
-def store_trades(data):
-    db = DataBase()
-
-    try:
-        print(db.store_trade(data))
-        db.query()
+        # want to create trade and a sell at the first points around the pivot
+        db.store_trade(["buy", db_data[3], 1])
+        db.store_trade(["sell", db_data[0], 1])
+        db.query_trades()
     finally:
         db.close()
 
