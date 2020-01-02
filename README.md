@@ -1,19 +1,6 @@
-# futures
-Code to trade futures programmatically
-=======
 # Futures
 
-**Not intended for public use.**
-
+Code to trade futures programmatically
+=======
 Queries data from barchart.com for the S&P 500 E-Mini futures cheat sheet and creates a trade based on if the price hits 
 certain criteria.
-
-##Installation
-
-- Install python and pip
-- Install pipenv (`pip install pipenv`)
-- clone this repository
-- cd into the repo
-- run `pipenv shell`
-- run `pipenv install --dev`
-- run `./trades.py`
